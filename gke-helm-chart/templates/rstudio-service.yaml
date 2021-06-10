@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-rstudio
+  labels:
+    app: rstudio
+spec:
+  type: {{ .Values.rstudio.type }}
+  ports:
+    - port: {{ .Values.rstudio.port }}
+      nodePort: {{ .Values.rstudioPort }}
+      name: {{ .Values.rstudio.protocol }}
+  selector:
+    app: rstudio

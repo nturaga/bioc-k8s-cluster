@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: manager
+  namespace: {{ .Values.clusterNamespace }}
+  labels:
+    app: rstudio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rstudio  
+  template:
+    metadata:
+      labels:
+        app: rstudio
+    spec:
+      containers:
+        - name: manager
+          image: {{ .Values.managerImage }}:{{ .Values.managerImageTag }}
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          resources:
+            requests:
+              memory: 1Gi
+              cpu: 1
+            limits:
+              memory: 1.1Gi
+              cpu: 1
+          volumeMounts:
+            - name: {{ .Values.volumeMountName }}
+              mountPath: {{ .Values.volumeMountPath }}
+          env:
+            - name: PASSWORD
+              value: {{ .Values.rstudioIngress.Password | quote }}
+          ports:
+            - containerPort: {{ .Values.rstudio.port }}
+          command: ["Rscript"]
+          args: ["-e", "BiocKubeInstall::kube_run('{{ .Values.biocVersion }}', image_name = '{{ .Values.dockerImageName }}', worker_pool_size = {{ .Values.workerPoolSize }})"]
+      volumes:
+        - name: {{ .Values.volumeMountName }}
+          azureFile:
+            secretName: {{ .Values.azFileShareSecret.secretName }}
+            shareName: {{ .Values.azFileShareSecret.shareName }}
+            readOnly: false

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workcluster
+  labels:
+    tier: workcluster
+spec:
+  replicas: {{ .Values.workerPoolSize }}
+  selector:
+    matchLabels:
+      tier: workcluster
+  template:
+    metadata:
+      labels:
+        tier: workcluster
+    spec:
+      containers:
+      - name: worker
+        image: {{ .Values.workerImage }}:{{ .Values.workerImageTag }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        resources:
+          requests:
+            memory: 2Gi
+            cpu: 500m
+          limits:
+            memory: 3Gi
+            cpu: 1
+        volumeMounts:
+         - mountPath: {{ .Values.volumeMountPath }}
+           name: {{ .Values.volumeMountName }}
+        command: ["R"]
+        args: ["-f", "/home/docker/worker.R"]
+      volumes:
+      - name: {{ .Values.volumeMountName }}
+        persistentVolumeClaim:
+          claimName: nfs
