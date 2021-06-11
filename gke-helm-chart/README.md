@@ -1,72 +1,107 @@
-# README
+README
+===========
 
-## INSTALL helm chart
+## Getting started with a Bioconductor Kubernetes Cluster
 
-Clone and install the helm chart to get going with the Bioc RedisParam on K8s.
+Clone and install the helm chart to get going with K8s managed on-demand the Bioc Cluster.
+
+### Software Requirements on local machine
+
+1. Docker (https://docs.docker.com/get-docker/)
+
+2. Kubernetes, specifically `kubectl` (https://kubernetes.io/docs/tasks/tools/)
+
+3. Google Cloud SDK or Microsoft Azure CLI (depending on your cloud choice). 
+   1. Google Cloud SDK (https://cloud.google.com/sdk/docs/install)
+   2. Microsoft Azure CLI (https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+
+4. Helm (https://helm.sh/docs/intro/install/)
+
+5. Git
+
+### NOTE: You need to have a Google cloud or Microsoft azure account. More likely than not, this will need a credit card.
+
 
 ### Quickstart
 
-Clone the repo
+1. Log in to Gcloud
 
-    git clone https://github.com/mtmorgan/k8s-redis-bioc-example.git
+        gcloud auth login
 
-Install the helm chart
+1. Clone the repo on your local machine.
 
-    helm install k8s-redis-bioc-example/helm-chart/
+        git clone https://github.com/nturaga/bioc-k8s-cluster.git
 
-Get list of running helm charts
+1. Change into the cloned repository,
 
-    helm list <release name>
+        cd bioc-k8s-cluster
 
-Get status of the installed chart
+1. You have chosen the Google Kubernetes Engine as your managed production ready cluster environment. 
+   
+   1. Launch a GKE cluster, this assumes you have a Google cloud account. Let's start with 10 nodes on machine type 'e2-standard-4'
 
-    helm status <release name>
+            GKE_CLUSTER=bioccluster; GKE_ZONE=us-east1-b
 
-Stop the chart
+            gcloud container clusters create \
+                --zone "$GKE_ZONE" \
+                --num-nodes 3 \
+                --machine-type=e2-standard-4 "$GKE_CLUSTER"
 
-    helm delete <release name>
+            gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
 
-### Requirements
+   2. Install the helm chart
 
-1. Kubernetes cluster is running, i.e (either minikube on your local
-   machine or a cluster in the cloud)
+            helm install "$GKE_CLUSTER" \
+                --set workerPoolSize=10 \
+                --set biocVersion='3.14' \
+                --set workerImageTag='RELEASE_3_14' gke-helm-chart --wait
 
-   This should work
+2. Login to manager node
 
-        ## minikube start
-        kubectl cluster-info
+        kubectl exec -it pod/manager -- /bin/bash
+
+        /host/ is NFS volume
+
+1. Deploy some work in R
+
+        library(RedisParam)
+
+        p <- RedisParam(workers = 10, 
+                        jobname = "demo", 
+                        is.worker = FALSE)
+
+        fun <- function(i) {
+            Sys.sleep(1)
+            Sys.info()[["nodename"]]
+        }
+
+        ## 100 seconds / 50 workers
+        system.time({
+            res <- bplapply(1:13, fun, BPPARAM = p)
+        })
+
+        ## each worker slept 2 or 3 times
+        table(unlist(res))
 
 
-1. Have helm installed!!
+1. Another example, calculating the value of pi ()
 
-        brew install helm
+        piApprox <- function(n) {
+                nums <- matrix(runif(2 * n), ncol = 2)
+                d <- sqrt(nums[, 1]^2 + nums[, 2]^2)
+                4 * mean(d <= 1)
+        }
 
-### Debug or dry run
+        piApprox(1000)
 
-Very useful options to check how the templates are forming,
+        param <- RedisParam(workers = 10,  jobname = "demo", is.worker = FALSE)
+        result <- bplapply(rep(10e5, 10), piApprox, BPPARAM=param)
+        mean(unlist(result))
 
-`--dry-run` doesn't actually install the chart and run it.
+2. Stop the chart
 
-    helm install --dry-run k8s-redis-bioc-example/helm-chart/
+        helm delete "$GKE_CLUSTER"
 
-`--debug` prints out the templates with the values.yaml embedded in them
+3. Delete cluster
 
-    helm install --dry-run --debug k8s-redis-bioc-example/helm-chart/
-
-### User Settings
-
-The defined user settings in the values.yaml file of the helm chart,
-can be changed in two ways,
-
-1. In the values.yaml file directly, where you can modify the Rstudio
-   login password ``rstudioPassword`` and the number of workers you
-   want to deploy `workerPoolSize`
-
-        workerPoolSize: 5             # Number of workers in the cluster
-        ...
-        rstudioPassword: bioc         # RStudio password on manager
-
-1. The other way is while deploying the helm chart,
-
-        helm install k8s-redis-bioc-example/helm-chart/ \
-            --set rstudioPassword=biocuser,workerPoolSize=10
+        gcloud container clusters delete "$GKE_CLUSTER" --zone "$GKE_ZONE" --quiet

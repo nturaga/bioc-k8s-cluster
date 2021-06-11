@@ -23,7 +23,7 @@ volumeMountPath: /host
 volumeMountSize: 200Gi
 
 # service key name
-serviceKey: bioc-binaries.json
+# serviceKey: bioc-binaries.json
 
 # RStudio access
 rstudioPort: 30001            # Port for user connection; must be >= 30000
