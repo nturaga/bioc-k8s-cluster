@@ -8,11 +8,11 @@ Clone and install the helm chart to get going with the Bioc RedisParam on K8s.
 
 Clone the repo
 
-    git clone https://github.com/mtmorgan/k8s-redis-bioc-example.git
+    git clone https://github.com/nturaga/bioc-k8s-cluster/
 
 Install the helm chart
 
-    helm install k8s-redis-bioc-example/helm-chart/
+    helm install aks-helm-chart
 
 Get list of running helm charts
 
@@ -36,7 +36,6 @@ Stop the chart
         ## minikube start
         kubectl cluster-info
 
-
 1. Have helm installed!!
 
         brew install helm
@@ -53,20 +52,10 @@ Very useful options to check how the templates are forming,
 
     helm install --dry-run --debug k8s-redis-bioc-example/helm-chart/
 
-### User Settings
+kubectl create secret generic azure-secret --from-literal=azurestorageaccountname=$AKS_PERS_STORAGE_ACCOUNT_NAME --from-literal=azurestorageaccountkey=$STORAGE_KEY
 
-The defined user settings in the values.yaml file of the helm chart,
-can be changed in two ways,
+## Az file share
+kubectl create secret generic azure-secret --from-file=azurestorageaccountname=secret-storage-account.txt --from-file=azurestorageaccountkey=secret-storage-account-key.txt --output=yaml
 
-1. In the values.yaml file directly, where you can modify the Rstudio
-   login password ``rstudioPassword`` and the number of workers you
-   want to deploy `workerPoolSize`
-
-        workerPoolSize: 5             # Number of workers in the cluster
-        ...
-        rstudioPassword: bioc         # RStudio password on manager
-
-1. The other way is while deploying the helm chart,
-
-        helm install k8s-redis-bioc-example/helm-chart/ \
-            --set rstudioPassword=biocuser,workerPoolSize=10
+## Az sas token
+kubectl create secret generic blob-sas-key --from-file=service_account_key=azure-sas.tok

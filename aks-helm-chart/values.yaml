@@ -7,15 +7,15 @@ version: 3.13.1
 # user-oriented configuration
 #
 
-clusterNamespace: release
+# clusterNamespace: release
 workerPoolSize: 50              # Number of workers in the cluster
 dockerImageName: 'bioconductor_docker'  # Image name for which binaries are created
-biocVersion: '3.12'
-workerImageTag: RELEASE_3_12    # Needs to match the biocVersion
+biocVersion: '3.13'
+workerImageTag: RELEASE_3_13    # Needs to match the biocVersion
 
 # Manager image
 managerImage: bioconductor/bioc-redis
-managerImageTag: az-manager
+managerImageTag: manager
 
 # Worker image
 workerImage: bioconductor/bioc-redis
@@ -34,7 +34,7 @@ azFileShareSecret:
 # RStudio access
 rstudioIngress:
   nodePort: 30001            # Port for user connection; must be >= 30000
-  Password: bioc         # RStudio password on manager
+  Password: biocpass         # RStudio password on manager
 
 #
 # internal settings
