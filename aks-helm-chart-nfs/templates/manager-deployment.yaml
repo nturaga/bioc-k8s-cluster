@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: manager
+  labels:
+    app: rstudio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rstudio  
+  template:
+    metadata:
+      labels:
+        app: rstudio
+    spec:
+      containers:
+        - name: manager
+          image: {{ .Values.managerImage }}:{{ .Values.managerImageTag }}
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          resources:
+            requests:
+              memory: "800Mi"
+              cpu: "500m"
+            limits:
+              memory: "1.5Gi"
+              cpu: "1"
+          volumeMounts:
+            - name: {{ .Values.volumeMountName }}
+              mountPath: {{ .Values.volumeMountPath }}
+            - name: sas-key
+              mountPath: /home/rstudio/key.json
+              subPath: {{ .Values.serviceKey }}
+          env:
+            - name: PASSWORD
+              value: {{ .Values.rstudioIngress.Password | quote }}
+          ports:
+            - containerPort: {{ .Values.rstudio.port }}
+#          command: ["Rscript"]
+#          args: ["-e", "BiocKubeInstall::kube_run('{{ .Values.biocVersion }}', image_name = '{{ .Values.dockerImageName }}', workers = {{ .Values.workerPoolSize }})"]
+      volumes:
+        - name: {{ .Values.volumeMountName }}
+          persistentVolumeClaim:
+            claimName: nfs
+        - name: sas-key
+          secret:
+            secretName: blob-sas-key
+            items:
+              - key: service_account_key
+                path: {{ .Values.serviceKey }}
