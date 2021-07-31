@@ -8,7 +8,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rstudio  
+      app: rstudio
   template:
     metadata:
       labels:
@@ -36,8 +36,8 @@ spec:
               value: {{ .Values.rstudioIngress.Password | quote }}
           ports:
             - containerPort: {{ .Values.rstudio.port }}
-          # command: ["Rscript"]
-          # args: ["-e", "BiocKubeInstall::kube_run('{{ .Values.biocVersion }}', image_name = '{{ .Values.dockerImageName }}', workers = {{ .Values.workerPoolSize }})"]
+#          command: ["Rscript"]
+#          args: ["-e", "BiocKubeInstall::kube_run('{{ .Values.biocVersion }}', image_name = '{{ .Values.dockerImageName }}', workers = {{ .Values.workerPoolSize }})"]
       volumes:
         - name: {{ .Values.volumeMountName }}
           azureFile:
