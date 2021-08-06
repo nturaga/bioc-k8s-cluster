@@ -1,5 +1,26 @@
 # README - Azure Bioconductor Cluster with NFS volume mount
 
+## Start Kubernetes cluster on AKS
+
+Login to AKS
+
+	az login
+
+Start a kubernetes cluster on AKS
+
+	az aks create -g bioconductor \
+		-n biock8scluster \
+		--enable-cluster-autoscaler \
+		--min-count 1 \
+		--node-count 25 \
+		--max-count 50 \
+		--output table
+
+Get cluster credentials
+
+	az aks get-credentials -g bioconductor --name biock8scluster
+
+
 ## INSTALL helm chart
 
 Clone and install the helm chart to get going with the Bioc RedisParam on K8s.
@@ -10,10 +31,8 @@ Clone the repo
 
 Install the helm chart
 
-	az login
-
 	helm install biock8scluster \
-		--set workerPoolSize=40  \
+		--set workerPoolSize=100  \
 		--set biocVersion='3.13' \
 		--set workerImageTag='RELEASE_3_13' \
 			aks-helm-chart --wait
