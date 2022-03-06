@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workcluster
+  labels:
+    tier: workcluster
+spec:
+  replicas: {{ .Values.workers.poolSize }}
+  selector:
+    matchLabels:
+      tier: workcluster
+  template:
+    metadata:
+      labels:
+        tier: workcluster
+    spec:
+      containers:
+      - name: worker
+        image: {{ .Values.workers.image.repository }}:{{ .Values.workers.image.tag }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        volumeMounts:
+         - mountPath: {{ .Values.persistence.mountPath }}
+           name: nfs-data
+        command: ["sh"]
+        args:
+        - -c
+        - {{ if .Values.workers.extraCommand -}}
+          {{- tpl .Values.workers.extraCommand $ }};
+          {{- end -}}
+          R -f /home/docker/worker.R
+      volumes:
+      - name: nfs-data
+        persistentVolumeClaim:
+          claimName: {{.Release.Namespace}}-nfs

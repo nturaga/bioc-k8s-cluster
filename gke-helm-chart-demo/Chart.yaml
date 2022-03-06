@@ -1,0 +1,9 @@
+apiVersion: v1
+appVersion: "1.0"
+description:  Kubernetes application to build Bioconductor package binaries using the bioconductor_docker images on GKE.
+name: k8s-redis-bioc-chart
+version: 3.14.0
+maintainers:
+  - name: Nitesh Turaga
+  - name: Alex Mahmoud
+  - name: Martin Morgan

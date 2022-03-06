@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis-master
+  labels:
+    app: redis
+spec:
+  containers:
+    - name: master
+      image: {{ .Values.redis.redisImage }}:{{ .Values.redis.redisImageTag }}
+      imagePullPolicy: {{ .Values.pullPolicy }}
+      env:
+        - name: MASTER
+          value: "true"
+      ports:
+        - containerPort: {{ .Values.redis.containerPort }}
+  restartPolicy: {{ .Values.restartPolicy }}

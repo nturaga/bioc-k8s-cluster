@@ -1,0 +1,72 @@
+# Default values for k8s-redis-bioc-chart. This is a YAML-formatted
+# file. Declare variables to be passed into your templates.
+
+#
+# user-oriented configuration
+#
+# clusterNamespace: release
+
+dockerImageName: 'bioconductor_docker'  # Image name for which binaries are created
+biocVersion: '3.14'
+
+workers:
+  poolSize: 50              # Number of workers in the cluster
+  image:
+    repository: bioconductor/bioc-redis
+    tag: RELEASE_3_14 # Needs to match the biocVersion
+  # Inject an `sh` prequel command to run before `R -f /home/docker/worker.R`
+  extraCommand: ""
+  # resources:
+  #   requests:
+  #     memory: 1500Mi
+  #     cpu: 500m
+    # limits:
+    #   memory: 3500Mi
+    #   cpu: 800m
+
+manager:
+  image:
+    repository: bioconductor/bioc-redis
+    tag: manager
+  # defaultCommand: |-
+  #   Rscript -e 'BiocKubeInstall::kube_run("{{ .Values.biocVersion }}", image_name = "{{ .Values.dockerImageName }}", exclude_pkgs = c("canceR"))'
+  # Inject an `sh` prequel command to run before `RScript -e BiocKubeInstall::kube_run`
+  extraCommand: ""
+  # resources:
+  #   requests:
+  #     memory: 700Mi
+  #     cpu: 500m
+  #   limits:
+  #     memory: 2Gi
+  #     cpu: 1700m
+
+
+# Persistence settings for base NFS disk
+persistence:
+  mountPath: /host
+  size: 200Gi
+  storageClass: manual
+  #gcpPdName: manual-pd
+
+# RStudio access
+rstudioPassword: bioc         # RStudio password on manager
+
+#
+# internal settings
+#
+
+# image management (manager, worker, redis)
+pullPolicy: Always
+restartPolicy: OnFailure
+
+# internal RStudio-specific config
+rstudio:
+  port: 8787                    # RStudioServer configured to listen here
+  protocol: http
+  type: NodePort
+
+# internal redis-specific config
+redis:
+  redisImage: redis
+  redisImageTag: '5.0'
+  containerPort: 6379

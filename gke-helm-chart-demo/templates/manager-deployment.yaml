@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: manager
+  labels:
+    app: rstudio
+spec:
+  containers:
+    - name: manager
+      image: {{ .Values.manager.image.repository }}:{{ .Values.manager.image.tag }}
+      imagePullPolicy: {{ .Values.pullPolicy }}
+      volumeMounts:
+        - name: nfs-data
+          mountPath: {{ .Values.persistence.mountPath }}
+      env:
+        - name: PASSWORD
+          value: {{ .Values.rstudioPassword | quote }}
+      ports:
+        - containerPort: 8787
+      # command: ["sh"]
+      # args:
+      #   - -c
+      #   - {{ if .Values.manager.extraCommand -}}
+      #     {{- tpl .Values.manager.extraCommand $ }};
+      #     {{- end -}}
+      #     {{ .Values.manager.defaultCommand }}
+  restartPolicy: {{ .Values.restartPolicy | quote}}
+  volumes:
+  - name: nfs-data
+    persistentVolumeClaim:
+      claimName: {{.Release.Namespace}}-nfs

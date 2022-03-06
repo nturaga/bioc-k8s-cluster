@@ -6,7 +6,7 @@ Start a GKE cluster
 
 	gcloud container clusters create my-gke-cluster \
 		--zone us-east1-b \
-		--disk-size=100 \
+		--disk-size=30Gi \
 		--num-nodes=2 \
 		--machine-type=e2-medium
 		
@@ -14,14 +14,24 @@ Start a GKE cluster
 
 	gcloud container clusters get-credentials my-gke-cluster --zone us-east1-b
 
-	helm install myredisdemo \
+	<!-- helm install myredisdemo \
 		--set workers.poolSize=4 \
         --set biocVersion="3.14" \
         --set workers.image.tag="RELEASE_3_14" \
 		--set persistence.size=100Gi \
 		--set manager.defaultCommand="" \
 		--set persistence.gcpPdName="mygke-nfs-pd" \
+		gke-helm-chart-demo --wait -->
+
+	helm install myredisdemo \
+		--set workers.poolSize=3 \
+        --set biocVersion="3.14" \
+        --set workers.image.tag="RELEASE_3_14" \
+		--set persistence.size=100Gi \
+		--set persistence.gcpPdName="mygke-nfs-pd" \
+		--set rstudio.type=LoadBalancer --set rstudio.port=80 \
 		gke-helm-chart-demo --wait
+
 
 
 ## Delete everything
