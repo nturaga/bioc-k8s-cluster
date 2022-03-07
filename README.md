@@ -1,6 +1,6 @@
-# bioc-k8s-cluster
+# Using containers for parallel computation in R
 
-Bioconductor Kubernetes Cluster that can be launched on demand on either AKS or GKE
+Bioconductor Kubernetes Cluster that can be launched on demand on a cloud service (GKE or AKS).
 
 ## Software Requirements on local machine
 
@@ -8,9 +8,7 @@ Bioconductor Kubernetes Cluster that can be launched on demand on either AKS or 
 
 2. Kubernetes, specifically `kubectl` (https://kubernetes.io/docs/tasks/tools/)
 
-3. Google Cloud SDK or Microsoft Azure CLI (depending on your cloud choice).
-   1. Google Cloud SDK (https://cloud.google.com/sdk/docs/install)
-   2. Microsoft Azure CLI (https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+3. Google Cloud SDK (https://cloud.google.com/sdk/docs/install)
 
 4. Helm (https://helm.sh/docs/intro/install/)
 
@@ -19,9 +17,6 @@ Bioconductor Kubernetes Cluster that can be launched on demand on either AKS or 
 ## Instructions
 
 - **GKE** launch instructions are in [gke-helm-chart](./gke-helm-chart/README.md)
-
-- **AKS** launch instructions are in [aks-helm-chart](./aks-helm-chart/README.md)
-
 
 ## Maintainer
 
