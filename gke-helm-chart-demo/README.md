@@ -1,72 +1,96 @@
 # README
 
-## INSTALL helm chart
+## Quickstart - Installing helm chart on a Kubernetes cluster
 
-Clone and install the helm chart to get going with the Bioc RedisParam on K8s.
+1. Get a Google Cloud account with the right permissions, and login.
 
-### Quickstart
+		gcloud auth login
 
-Clone the repo
+2. Start a GKE (Google Kubernetes Engine) cluster. The command below
+   starts a 2 node cluster (machine type = `e2-medium`), the disk size
+   on each node is 30 Gi.
+   
+   [Link for more machine types on GKE](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types)
 
-    git clone https://github.com/mtmorgan/k8s-redis-bioc-example.git
+		gcloud container clusters create my-gke-cluster \
+			--zone us-east1-b \
+			--disk-size=30Gi \
+			--num-nodes=2 \
+			--machine-type=e2-medium
+		
+3. Create a persistent disk of size 100Gi to store your data
 
-Install the helm chart
+		gcloud compute disks create "mygke-nfs-pd" --size 100Gi --zone us-east1-b
 
-    helm install k8s-redis-bioc-example/helm-chart/
+4. Get the credentials of your cluster locally 
 
-Get list of running helm charts
+		gcloud container clusters get-credentials my-gke-cluster --zone us-east1-b
 
-    helm list <release name>
+5. Install the Bioconductor Redis GKE helm chart, to launch the
+   Bioconductor parallel computing cluster
+   
+   The number of workers in this cluster are `3`. At the moment the
+   only versions of Bioconductor available for parallel computation
+   are 3.13, 3.14 and 3.15.
 
-Get status of the installed chart
+		helm install myredisdemo \
+			--set workers.poolSize=3 \
+			--set biocVersion="3.14" \
+			--set workers.image.tag="RELEASE_3_14" \
+			--set persistence.size=100Gi \
+			--set persistence.gcpPdName="mygke-nfs-pd" \
+			--set manager.defaultCommand="/init" \
+			--set rstudio.type=LoadBalancer \
+			gke-helm-chart-demo --wait
 
-    helm status <release name>
+		## Get list of running helm charts
 
-Stop the chart
+		helm list
+		
+		## Get status of installation
+		
+		helm status myredisdemo
+		
 
-    helm delete <release name>
+6. Get the RStudio IP address by visiting the 
 
-### Requirements
+		echo http://$(kubectl get svc myredisdemo-rstudio --template "{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"):8787
 
-1. Kubernetes cluster is running, i.e (either minikube on your local
-   machine or a cluster in the cloud)
-
-   This should work
-
-        ## minikube start
-        kubectl cluster-info
+## Clean up your cloud resources - Delete everything
 
 
-1. Have helm installed!!
+1. To delete the current RedisParam cluster 
+
+		helm delete myredisdemo
+	
+1. Delete persistent disk - this step only if you do not want to retain anything from the persistent disk
+ 
+		gcloud compute disks delete --zone us-east1-b mygke-nfs-pd
+
+1. Delete the Kubernetes cluster on GKE
+
+		gcloud container clusters delete my-gke-cluster --zone us-east1-b --quiet
+
+## Requirements
+
+1. helm installed (https://helm.sh/)
 
         brew install helm
 
-### Debug or dry run
+1. Google Cloud SDK is installed
+
+1. Install kubernetes -
+   https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/
+
+## Debug or dry run
 
 Very useful options to check how the templates are forming,
 
 `--dry-run` doesn't actually install the chart and run it.
 
-    helm install --dry-run k8s-redis-bioc-example/helm-chart/
+    helm install --dry-run gke-helm-chart-demo/
 
 `--debug` prints out the templates with the values.yaml embedded in them
 
-    helm install --dry-run --debug k8s-redis-bioc-example/helm-chart/
+    helm install --dry-run --debug gke-helm-chart-demo/
 
-### User Settings
-
-Any setting in the values.yaml file of the helm chart,
-can be changed in two ways,
-
-1. In the values.yaml file directly, where you can modify, for example,
-   the Rstudio login password ``rstudioPassword`` or the number of 
-   workers you want to deploy `workers.poolSize`
-
-        workers.poolSize: 5             # Number of workers in the cluster
-        ...
-        rstudioPassword: bioc         # RStudio password on manager
-
-1. The other way is while deploying the helm chart,
-
-        helm install k8s-redis-bioc-example/helm-chart/ \
-            --set rstudioPassword=biocuser,workers.poolSize=10
