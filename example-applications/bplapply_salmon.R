@@ -5,7 +5,7 @@ library(RedisParam)
 ## Initiate BatchtoolsParam with the 
 param <- RedisParam(
     workers = 50,
-    jobname="demo",
+    jobname="binarybuild", ## because it's fixed in the docker image
     is.worker=FALSE
 )
 
