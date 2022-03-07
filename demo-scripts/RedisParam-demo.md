@@ -1,21 +1,22 @@
-## RedisParam demo
+# RedisParam demo
 
 ## Terminal 1 - First start the redis server
 
-redis-server
+	redis-server
 
 ## Talk about Manager + worker paradigm
 
-
 ## Manager terminal 1 - start R
 
-library(RedisParam)
+Manager process
 
-p <- RedisParam(jobname = 'new', is.worker = FALSE)
+	library(RedisParam)
 
-print(p) ## Notice there are no workers
+	p <- RedisParam(jobname = 'new', is.worker = FALSE)
 
-bpstart(p) ## notice there are still no workers
+	print(p) ## Notice there are no workers
+
+	bpstart(p) ## notice there are still no workers
 
 ## Create some Redis Workers
 

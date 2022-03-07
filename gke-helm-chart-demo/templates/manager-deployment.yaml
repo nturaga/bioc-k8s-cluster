@@ -17,13 +17,13 @@ spec:
           value: {{ .Values.rstudioPassword | quote }}
       ports:
         - containerPort: 8787
-      # command: ["sh"]
-      # args:
-      #   - -c
-      #   - {{ if .Values.manager.extraCommand -}}
-      #     {{- tpl .Values.manager.extraCommand $ }};
-      #     {{- end -}}
-      #     {{ .Values.manager.defaultCommand }}
+      command: ["sh"]
+      args:
+        - -c
+        - {{ if .Values.manager.extraCommand -}}
+          {{- tpl .Values.manager.extraCommand $ }};
+          {{- end -}}
+          {{ .Values.manager.defaultCommand }}
   restartPolicy: {{ .Values.restartPolicy | quote}}
   volumes:
   - name: nfs-data

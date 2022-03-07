@@ -40,7 +40,6 @@
 			--set persistence.size=100Gi \
 			--set persistence.gcpPdName="mygke-nfs-pd" \
 			--set manager.defaultCommand="/init" \
-			--set rstudio.type=LoadBalancer \
 			gke-helm-chart-demo --wait
 
 		## Get list of running helm charts
