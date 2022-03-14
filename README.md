@@ -18,6 +18,15 @@ Bioconductor Kubernetes Cluster that can be launched on demand on a cloud servic
 
 - **GKE** launch instructions are in [gke-helm-chart](./gke-helm-chart/README.md)
 
+## Flowchart
+
+```mermaid
+
+flowchart LR
+    id1["Start kubernetes cluster on GKE"] -->id2["Launch Bioc configuration with  ‘helm-chart’"] -->id3["Connect to Manager"] -->id4["Deploy R/Bioc code in parallel manner"] -->id5["Collect results"] -->id6["Clean-up cluster"]
+
+```
+
 ## Maintainer
 
 - Nitesh Turaga - nturaga.bioc at gmail dot com
