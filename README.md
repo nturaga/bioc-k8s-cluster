@@ -23,7 +23,7 @@ Bioconductor Kubernetes Cluster that can be launched on demand on a cloud servic
 ```mermaid
 
 flowchart TD
-    id1["Start kubernetes cluster on GKE"] -->id2["Launch Bioc configuration with  ‘helm-chart’"] -->id3["Connect to Manager"] -->id4["Deploy R/Bioc code in parallel manner"] -->id5["Collect results"] -->id6["Clean-up cluster"]
+    id1["Start kubernetes cluster on GKE"] -->id2["Launch Bioc configuration with  ‘helm-chart’"] -->id3["Connect to Manager"] -->id4["Deploy R/Bioc code in parallel manner"] -->|bplapply(X, FUN, BPPARAM = RedisParam())|id5["Collect results"] -->id6["Clean-up cluster"]
 
 ```
 
