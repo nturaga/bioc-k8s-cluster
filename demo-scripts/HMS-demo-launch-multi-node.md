@@ -24,6 +24,31 @@ Start a GKE cluster
 		--set rstudio.type=LoadBalancer \
 		gke-helm-chart-demo --wait
 
+## Demo of a parallel compute job
+
+Just a simple function that will sleep for a second. 
+
+```
+library(RedisParam)
+
+Sys.setenv(REDIS_HOST = Sys.getenv("REDIS_SERVICE_HOST"))
+Sys.setenv(REDIS_PORT = Sys.getenv("REDIS_SERVICE_PORT"))
+
+p <- RedisParam(workers = 5, jobname = "binarybuild", is.worker = FALSE)
+
+fun <- function(i) {
+    Sys.sleep(1)
+    Sys.info()[["nodename"]]
+}
+
+## 13 seconds / 3 workers = (5 seconds, 5 seconds, 3 seconds)
+system.time({
+    res <- bplapply(1:13, fun, BPPARAM = p)
+})
+
+## each worker slept 5 or 3 times
+table(unlist(res))
+```
 
 
 ## Delete everything
