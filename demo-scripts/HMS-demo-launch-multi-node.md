@@ -24,6 +24,11 @@ Start a GKE cluster
 		--set rstudio.type=LoadBalancer \
 		gke-helm-chart-demo --wait
 
+Get RStudio IP address
+
+	 echo http://$(kubectl get svc myredisdemo-rstudio --template "{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"):8787
+
+
 ## Demo of a parallel compute job
 
 Just a simple function that will sleep for a second. 
@@ -34,7 +39,7 @@ library(RedisParam)
 Sys.setenv(REDIS_HOST = Sys.getenv("REDIS_SERVICE_HOST"))
 Sys.setenv(REDIS_PORT = Sys.getenv("REDIS_SERVICE_PORT"))
 
-p <- RedisParam(workers = 5, jobname = "binarybuild", is.worker = FALSE)
+p <- RedisParam(workers = 3, jobname = "binarybuild", is.worker = FALSE)
 
 fun <- function(i) {
     Sys.sleep(1)
