@@ -17,7 +17,7 @@ Start a GKE cluster
 	helm install myredisdemo \
 		--set workers.poolSize=3 \
 		--set biocVersion="3.14" \
-		--set workers.image.tag="RELEASE_3_14" \
+		--set workers.image.tag="RELEASE_3_15" \
 		--set persistence.size=100Gi \
 		--set persistence.gcpPdName="mygke-nfs-pd" \
 		--set manager.defaultCommand="/init" \
